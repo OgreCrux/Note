@@ -1,0 +1,2 @@
+w32tm /config /manualpeerlist:"ntp.async.com,0x8" /syncfromflags:manual /update /reliable:yes
+w32tm /register
