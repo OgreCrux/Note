@@ -1,0 +1,128 @@
+#!/bin/bash
+#
+# Cisco UCS QA 
+#
+
+# change with your own info
+tun_uName="root"
+lnx_uName="root"
+win_uName="administrator"
+domain="SCALING"
+tunPassword="Nbv12345"
+lnxPassword="Nbv12345"
+winPassword="Nbv12345"
+
+# depend on how fast your ssh gate respond
+TIMEOUT=10
+
+# change the display size
+XRES="100x40"
+WRES="1920x1200"
+
+#  =========
+usage()
+{
+echo -e "\nUsage: $0 -t { windows | xterm | shell} -g {SSHD gateway} -h {target IP/FQDN}\n"
+}
+
+
+while getopts "t:g:h:?" OPTION
+do
+	case $OPTION in
+		h)	HOST=$OPTARG 
+			;;
+		g) 	GATE=$OPTARG
+			;;
+		t) 	case $OPTARG in
+				[Ww|[Ww]indows|[Ww]in )
+					PTYPE="w"
+					SVRPORT=3389	
+					;;
+				[Xx]|xterm )
+					PTYPE="x"
+					SVRPORT=22
+					;;
+				[sS]|[Ss]hell )
+					PTYPE="s"
+					SVRPORT=22
+					;;
+			esac
+			;;
+		? )
+			usage
+			exit
+			;;
+	esac
+done
+
+if [[ -z $HOST ]] || [[ -z $GATE ]] || [[ -z $PTYPE ]]
+then
+	usage
+	exit 1
+fi 
+
+# the variable used
+PORT=0
+AVAIL=0
+NOTLISTEN=1
+TRUE=1
+FALSE=0
+TICK=0
+
+# make sure the TCP port we are using is free.
+while [ $AVAIL -eq $FALSE ]
+do
+	PORT=`echo "$RANDOM + 1024" | bc`
+	netstat -a | grep localhost.$PORT > /dev/null 2>&1
+	AVAIL=$?
+done
+
+echo using port number $PORT.
+
+# Make the ssh tunnel
+eval "ssh -n -2N -L $PORT:$HOST:$SVRPORT $tun_uName@$GATE &"
+pid=$!
+
+echo Making ssh tunnel on process ID $pid.
+
+# cleanup the process event if it is not end properly.
+trap "kill $pid >/dev/null 2>&1; sed -i -e \"/\[localhost\]\:$PORT/d\" ~/.ssh/known_hosts; exit" 0 1 2 15
+
+echo -n "wait until the tunnel is ready."
+
+# wait until the port is ready.
+while [ $NOTLISTEN -eq $TRUE ]
+do
+	netstat -a | grep localhost\.$PORT | grep LISTEN > /dev/null 2>&1
+	NOTLISTEN=$?
+	echo -n .; TICK=$((TICK + 1))
+	sleep 1
+	if [ $TICK -ge $TIMEOUT ]
+	then
+		echo "Tunnel connection timeout, please try again"
+		exit 1
+	fi
+done
+
+echo -e "\nconnecting to $HOST"
+
+# start your command here. 
+case $PTYPE in
+	s ) 	ssh -X -p $PORT $lnx_uName@localhost
+		;;
+	x )	eval "ssh  -X -p $PORT $lnx_uName@localhost \
+			"xterm -fn 8x13 \
+			-geometry $XRES \
+			-bg Ivory -fg gray30 -cr purple2 \
+			-ls -sl 1024 +sb" \
+			 >/dev/null 2>&1 &"
+		wait $!
+		;;
+	w )	rdesktop -u $win_uName \
+			-p $winPassword \
+			-d $domain \
+			-z -r clipboard:PRIMARYCLIPBOARD \
+			-T $HOST \
+			-g $WRES 127.0.0.1:$PORT  2>/dev/null
+		;;
+esac
