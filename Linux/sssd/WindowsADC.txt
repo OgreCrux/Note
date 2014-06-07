@@ -1,0 +1,21 @@
+- make sure the time on the windows  system is correct
+
+> w32tm /config /manualpeerlist:"{ntpserverName},0x8" /syncfromflags:manual /update /reliable:yes
+> w32tm /register
+
+- enable anonymous ldap binding Follow the instruction of the URL
+
+	http://technet.microsoft.com/en-us/library/cc816788
+
+- install the NIS support and admin UI require reboot.
+  enable the definition of the user UIG and  GID
+ 
+  install NIS support  ( for uid anf gid mapping )
+  > dism.exe /online /enable-feature /featureName:nis
+
+  install administration UI (to define the nis Domain Name )
+  > dism.exe /online /enable-feature /featureName:adminui
+
+- open "Microsoft Identity Management for Unix" to verify the NIS info
+
+- once reboot, you can seee the "Unix Attributes" on user properties
