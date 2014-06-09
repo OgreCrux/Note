@@ -1,0 +1,8 @@
+ASDI editor
+- configuration
+	- Service 
+		- WindowsNT
+			- Directory Service
+				[property] dSHeuristics  = 0000002001001
+
+
