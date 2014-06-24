@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+sed -i -e "/Domain/s/^#\(.*=\s\).*$/\1realtaasa.com/" /etc/idmapd.conf 
+
+service rpcidmapd restart
+service autofs restart
+nfsidmap -c 
