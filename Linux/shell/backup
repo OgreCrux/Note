@@ -1,0 +1,24 @@
+#!/bin/sh
+
+HOSTNAME=`hostname -s`
+bkupdir=/net/nas1/archive/$HOSTNAME
+FOLDER1=/etc
+
+today=`date +%Y-%m-%d`
+
+mkdir -p $bkupdir
+cd $bkupdir
+ls -1d 2*-*-* > all
+# only keep last 20 copies
+tail -n 20 all > kept
+comm -3 all kept | xargs /bin/rm -fr
+/bin/rm -f all kept
+
+rsync -a --link-dest=../`cat last` $FOLDER1 $bkupdir/$today/
+
+rc=$?
+if [ "$rc" = 0 ]; then
+   echo $today > last
+else
+   df -h
+fi
