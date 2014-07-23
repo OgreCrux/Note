@@ -1,0 +1,51 @@
+MongoDB setup  (CentOS)
+
+1. Setup yum repo, for x64
+	[mongodb]
+	name=MongoDB Repository
+	baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
+	gpgcheck=0
+	enabled=1
+
+2. install MongoDB
+	yum install mongodb-org
+	
+3. configure, /etc/mongod.conf
+	. comment out "bind_ip", if need to serve other hosts
+
+4.	Replication option
+	. un-comment "replSet = SetName", and give the SetName on every dB server.
+	. generate the keyFile using the command "openssl rand -base64 741"
+	. un-comment "keyFile" and make user every replica set server using the same keyFile.
+	. start up all of the MogoDB servers
+
+	1. connect Mongo shell
+		mongo
+	2. initiate the replica
+		> rs.initiate()
+	3. check the replica setting
+		> rs.conf()
+	4. add other hosts
+		> rs.add("other DB hostname")
+		can add up to 12 hosts in one replica set
+	5. check the replica status
+		> rs.status()
+		
+5. once the keyFile is enable the User Authentication is turn on for remote access, 
+   so if no admin user been created for the DB, access the DB remotely will be denied.
+
+	. without creating an admin user on the DB, the localhost privilege access will not be affected    
+	. create a local admin, on Mongo shell
+		> use admin 
+		> db.createUser(
+		{
+			"user"		: "admin",
+			"password" 	: "clearTextPassword",
+			"roles" [
+						"root"
+					]
+		}
+	. create dbOwner for each database
+	. Roles info can be found at http://docs.mongodb.org/manual/reference/built-in-roles/
+
+	
