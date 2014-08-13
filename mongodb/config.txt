@@ -30,8 +30,58 @@ MongoDB setup  (CentOS)
 		can add up to 12 hosts in one replica set
 	5. check the replica status
 		> rs.status()
-		
-5. once the keyFile is enable the User Authentication is turn on for remote access, 
+		current setting
+			{
+			        "set" : "webapp",
+			        "date" : ISODate("2014-07-28T19:34:14Z"),
+			        "myState" : 1,
+			        "members" : [
+			                {
+			                        "_id" : 0,
+			                        "name" : "MonDB.realtaasa.com:27017",
+			                        "health" : 1,
+			                        "state" : 1,
+			                        "stateStr" : "PRIMARY",
+			                        "uptime" : 1206813,
+			                        "optime" : Timestamp(1406248186, 1),
+			                        "optimeDate" : ISODate("2014-07-25T00:29:46Z"),
+			                        "electionTime" : Timestamp(1405370845, 1),
+			                        "electionDate" : ISODate("2014-07-14T20:47:25Z"),
+			                        "self" : true
+			                },
+			                {
+			                        "_id" : 1,
+			                        "name" : "mondb2.realtaasa.com:27017",
+			                        "health" : 1,
+			                        "state" : 2,
+			                        "stateStr" : "SECONDARY",
+			                        "uptime" : 1205211,
+			                        "optime" : Timestamp(1406248186, 1),
+			                        "optimeDate" : ISODate("2014-07-25T00:29:46Z"),
+			                        "lastHeartbeat" : ISODate("2014-07-28T19:34:14Z"),
+			                        "lastHeartbeatRecv" : ISODate("2014-07-28T19:34:13Z"),
+			                        "pingMs" : 0,
+			                        "syncingTo" : "MonDB.realtaasa.com:27017"
+			                },
+			                {
+			                        "_id" : 2,
+			                        "name" : "mondb3.realtaasa.com:27017",
+			                        "health" : 1,
+			                        "state" : 2,
+			                        "stateStr" : "SECONDARY",
+			                        "uptime" : 1205190,
+			                        "optime" : Timestamp(1406248186, 1),
+			                        "optimeDate" : ISODate("2014-07-25T00:29:46Z"),
+			                        "lastHeartbeat" : ISODate("2014-07-28T19:34:14Z"),
+			                        "lastHeartbeatRecv" : ISODate("2014-07-28T19:34:13Z"),
+			                        "pingMs" : 0,
+			                        "syncingTo" : "MonDB.realtaasa.com:27017"
+			                }
+			        ],
+			        "ok" : 1
+			}
+			
+5. once the keyFile is enable the "User Authentication" is turned on for remote access, 
    so if no admin user been created for the DB, access the DB remotely will be denied.
 
 	. without creating an admin user on the DB, the localhost privilege access will not be affected    
@@ -45,7 +95,71 @@ MongoDB setup  (CentOS)
 						"root"
 					]
 		}
+	. change the node startup script wth ad access info
+		export MONGO_URL='mongodb://{userID}:password@{Mongo DB Host}:port,{host}:port/webapp'
 	. create dbOwner for each database
 	. Roles info can be found at http://docs.mongodb.org/manual/reference/built-in-roles/
+
+
+* mondb command
+
+list dbs
+	> show dbs
+
+select current db
+	> use db
+
+authenticate
+	> db.auth("userID","password")
+
+list db user
+	> show users
+
+current DB user info
+	admin db
+	{
+	        "_id" : "admin.admin",
+	        "user" : "admin",
+	        "db" : "admin",
+	        "roles" : [
+	                {
+	                        "role" : "dbOwner",
+	                        "db" : "admin"
+	                },
+	                {
+	                        "role" : "root",
+	                        "db" : "admin"
+	                }
+	        ]
+	}
+	{
+	        "_id" : "admin.backup",
+	        "user" : "backup",
+	        "db" : "admin",
+	        "roles" : [
+	                {
+	                        "role" : "backup",
+	                        "db" : "admin"
+	                },
+	                {
+	                        "role" : "restore",
+	                        "db" : "admin"
+	                }
+	        ]
+	}
+
+	webapp db
+	{
+	        "_id" : "webapp.webapp",
+	        "user" : "webapp",
+	        "db" : "webapp",
+	        "roles" : [
+	                {
+	                        "role" : "dbOwner",
+	                        "db" : "webapp"
+	                }
+	        ]
+	}
+	
 
 	
