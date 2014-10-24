@@ -68,6 +68,10 @@ sssd-tools
 	> kinit dcuser@EXAMPLE.COM  <- upper case here
 
 	> klist -ke     <- to verify the keytab is working properly
+
+------ enable pam
+	authconfig --enablesssd --enablesssdauth --update
+
 		
 - modify /etc/sssd/sssd.conf
 ----------------------------
