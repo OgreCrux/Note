@@ -110,7 +110,7 @@ select current db
 	> use db
 
 authenticate
-	> db.auth("userID","password")
+	> db.auth( user:"userID", pwd:"password")
 
 list db user
 	> show users
