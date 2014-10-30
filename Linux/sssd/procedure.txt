@@ -112,7 +112,7 @@ sssd-tools
 	ldap_krb5_ticket_lifetime = 86400
 	ldap_user_shell = loginShell
 	ldap_schema = rfc2307bis
-	ldap_group_member = member
+	ldap_group_member = uniqueMember
 	ldap_network_timeout = 2
 	ldap_krb5_init_creds = True
 	ldap_referrals = false
